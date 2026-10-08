@@ -74,8 +74,8 @@ def events(text):
     return out
 
 
-def speak(text, f0, pace):
-    """Float samples of one stretch of text."""
+def speak(text, f0, pace, depth):
+    """Float samples of one stretch of text; the pitch falls by `depth` (a fraction of f0) over it."""
     evs = events(text)
     total = sum(n for kind, n in evs if kind == "syl") or 1
     rising = text.rstrip().endswith(("?", "？"))
@@ -86,7 +86,7 @@ def speak(text, f0, pace):
             continue
         for _ in range(n):
             pos = k / max(total - 1, 1)
-            f = f0 * (1.08 - 0.16 * pos) * (1.18 if rising and k >= total - 2 else 1.0)
+            f = f0 * (1 + depth / 2 - depth * pos) * (1.18 if rising and k >= total - 2 else 1.0)
             samples.extend(vowel(f, VOWELS[k % len(VOWELS)], random.uniform(0.15, 0.22) / pace))
             k += 1
     return samples
@@ -160,18 +160,20 @@ def voice_f0(p):
 def generate(p):
     """Synthesize one job and save it to outputs/; return the job's result."""
     f0 = voice_f0(p) * 2 ** (p["pitch_st"] / 12)
+    depth = random.uniform(0.06, 0.3)  # each draw speaks a little flatter or livelier
     if p["beats"]:
         samples = []
         for b in p["beats"]:
-            samples += speak(str(b.get("text", "")), f0, p["pace"])
+            samples += speak(str(b.get("text", "")), f0, p["pace"], depth)
             samples += [0.0] * int(float(b.get("gap_after", 0) or 0) * SR)
     else:
-        samples = speak(p["text"], f0, p["pace"])
+        samples = speak(p["text"], f0, p["pace"], depth)
     samples = level(samples, p["level_db"])
     name = f"{p['model']}__{time.strftime('%Y%m%d-%H%M%S')}-{uuid.uuid4().hex[:4]}.wav"
     write_wav(OUT / name, samples)
     VOICES[name] = round(f0, 1)
     return {"url": f"outputs/{name}", "file": name, "ref_saved": p["ref_saved"], "f0": round(f0, 1),
+            "f0_range": round(12 * math.log2((1 + depth / 2) / (1 - depth / 2)), 2),
             "duration": round(len(samples) / SR, 2), "sample_rate": SR}
 
 

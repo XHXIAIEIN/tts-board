@@ -73,7 +73,10 @@ Excuse me... do you sell umbrellas?
 
 模型有 `ref_text` 时，句子还会带上样本的原文 `ref_text`。发送了表演指令（模型有 `voice_prompt`）或分了拍的句子不带原文，因为按原文续写的模型会把表演指令当成要念的字。
 
-声音描述里写了性别（如 woman、man、女、男），而样本的中位音高不符时（女声低于 165 Hz，男声高于 160 Hz），页面重新生成样本，最多生成四次。这一步需要后端在结果里返回 `f0`。
+样本有下面两种问题时，页面重新生成，最多生成四次：
+
+- 声音描述里写了性别（如 woman、man、女、男），而样本的中位音高不符：女声低于 165 Hz，男声高于 160 Hz。这一项需要后端在结果里返回 `f0`
+- 项目设了 `anchor_min_f0_range`，而样本的音高起伏 `f0_range` 低于它。角色的每一句都克隆样本，样本平，这个角色的每一句都平。后端没有返回 `f0_range` 时这一项算通过
 
 样本只存在页面内存里，刷新页面后角色会换成新的声音。要固定一个声音，把它的音频作为参考音频上传。
 
@@ -89,6 +92,7 @@ Excuse me... do you sell umbrellas?
 | `text_script` | 台词所用文字的 Unicode 名称，见「写剧本」 |
 | `fonts` | Google Fonts 字体名列表，排在页面默认字体前面，用来显示默认字体缺的文字，例如 `["Noto Sans Thai"]` |
 | `anchor_text` | 每个角色的声音样本念的句子，用台词的语言写 |
+| `anchor_min_f0_range` | 声音样本音高起伏的下限，半音，见「角色的声音」。合适的值随语言和素材变化，不设就不检查 |
 | `default_model` | 打开页面时选中的模型 id |
 | `scripts` | `data/scripts/` 下的剧本文件名 |
 | `defaults` | `gap`、`beat_gap`、`long_beat_gap`、`level_db`、`pace`、`pitch_st` 的默认值，以及传给后端的 `jitter` |
@@ -152,6 +156,7 @@ Excuse me... do you sell umbrellas?
 | `duration` | 时长，秒 |
 | `seconds`、`first_load` | 生成耗时，以及是否包含加载模型 |
 | `f0` | 中位音高，Hz，用于检查样本的性别 |
+| `f0_range` | 音高起伏，半音，用于检查样本是否太平；怎么测由后端决定，测不出时为 `null` |
 | `ref_saved` | 请求带 `ref_audio` 时，上传文件在后端的标识 |
 
 ### `DELETE api/jobs/{id}`

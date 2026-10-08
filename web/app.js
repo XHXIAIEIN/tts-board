@@ -477,6 +477,11 @@ function pitchFits(gender, f0) {
   if (!gender || !f0) return true;
   return gender === "f" ? f0 >= 165 : f0 <= 160;
 }
+// Pitch range in semitones, at least anchor_min_f0_range; without the setting or a measurement it passes
+function rangeFits(range) {
+  const min = DATA.anchor_min_f0_range;
+  return !min || range === undefined || range === null || range >= min;
+}
 function anchorPrompt(r) { return [r.desc, r.personality].filter(Boolean).join(", "); }
 
 function renderRoles() {
@@ -592,14 +597,14 @@ async function makeAnchor(name, priority, onState) {
     const body = await tts({ model: m.id, text, ref_audio: r.upload }, { priority, onState });
     return { file: body.ref_saved || body.file, url: body.url, text: "" };
   }
-  // A description sometimes yields the wrong gender; draw again while the sample's pitch does
-  // not fit the gender that the description names.
+  // Draw again while the sample's pitch does not fit the gender that the description names, or its
+  // pitch range is too narrow: every line of the role clones the sample, so a flat sample makes them flat.
   const prompt = can(m, "voice_prompt") ? anchorPrompt(r) : "";
   const gender = descGender(prompt);
   let body;
   for (let i = 0; i < 4; i++) {
     body = await tts({ model: m.id, text, voice_prompt: prompt, seed: Math.floor(Math.random() * 1e6) }, { priority, onState });
-    if (pitchFits(gender, body.f0)) break;
+    if (pitchFits(gender, body.f0) && rangeFits(body.f0_range)) break;
   }
   return { file: body.file, url: body.url, text };
 }
