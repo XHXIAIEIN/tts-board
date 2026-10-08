@@ -29,8 +29,9 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 HERE = Path(__file__).resolve().parent
-PAGE = HERE.parent  # the page and its data/
-OUT = HERE / "outputs"  # generated audio, served at outputs/
+OUT = HERE / "outputs"  # generated audio
+# URL prefix -> folder served there: the generated audio, the project's data, and the page at the root
+MOUNTS = [("outputs/", OUT), ("data/", HERE.parent / "data"), ("", HERE.parent / "web")]
 (OUT / "refs").mkdir(parents=True, exist_ok=True)
 SR = 16000
 LOAD_SECONDS = 1.0  # the first job of a model waits this long, like loading weights
@@ -371,16 +372,14 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json({"cancelled": jobs.cancel(m.group(1))})
 
     def static(self, path, head):
-        """Files of the page and its data, and generated audio at outputs/; nothing hidden and
-        nothing of server/. Supports one byte range, so audio can seek."""
+        """A file of one of the MOUNTS, nothing hidden. Supports one byte range, so audio can seek."""
         rel = unquote(path).lstrip("/") or "index.html"
-        generated = rel.startswith("outputs/")
-        base = OUT if generated else PAGE
-        target = (base / (rel[len("outputs/"):] if generated else rel)).resolve()
+        prefix, base = next((p, b) for p, b in MOUNTS if rel.startswith(p))
+        target = (base / rel[len(prefix):]).resolve()
         if (base not in target.parents or not target.is_file() or target.suffix not in TYPES
-                or any(part.startswith(".") for part in target.relative_to(base).parts)
-                or HERE in target.parents and not generated):
+                or any(part.startswith(".") for part in target.relative_to(base).parts)):
             return self.fail(404, "没有这个文件")
+        generated = base == OUT
         data = target.read_bytes()
         status, lo, hi = 200, 0, len(data) - 1
         rng = re.fullmatch(r"bytes=(\d*)-(\d*)", self.headers.get("Range", ""))

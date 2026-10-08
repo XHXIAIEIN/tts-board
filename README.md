@@ -110,7 +110,7 @@ Excuse me... do you sell umbrellas?
 
 ## 后端接口
 
-页面用相对路径请求后端，所以后端要在同一个地址下提供页面文件、`data/` 和下面的接口。出错时返回非 2xx 状态和 `{"detail": "说明"}`，页面会显示这段说明。`server/mock_server.py` 是这些接口的一个可运行的实现。
+页面用相对路径请求数据和接口，所以后端要在同一个地址下提供三样东西：`web/` 里的页面文件，项目的 `data/`，以及 `api/` 下的接口。模拟后端把 `web/` 作为站点根目录，`data/` 和 `api/` 都挂在根目录下。出错时返回非 2xx 状态和 `{"detail": "说明"}`，页面会显示这段说明。`server/mock_server.py` 是这些接口的一个可运行的实现。
 
 ### `GET api/models`
 
@@ -178,11 +178,11 @@ Excuse me... do you sell umbrellas?
 
 | 文件 | 内容 |
 |------|------|
-| `index.html`、`style.css` | 页面结构和样式 |
-| `app.js` | 剧本解析、角色声音、时间线、写法字典和单句对比 |
-| `plan.js` | 导演指令行的读写、分拍，以及把各层设置合并成一句的计划 |
-| `api.js` | 对后端接口的全部调用 |
-| `data/` | 示例项目 |
+| `web/index.html`、`web/style.css` | 页面结构和样式 |
+| `web/app.js` | 剧本解析、角色声音、时间线、写法字典和单句对比 |
+| `web/plan.js` | 导演指令行的读写、分拍，以及把各层设置合并成一句的计划 |
+| `web/api.js` | 对后端接口的全部调用 |
+| `data/` | 示例项目，页面以 `data/` 的地址读取 |
 | `server/` | 模拟后端 `mock_server.py` |
 | `docs/` | README 里的截图 |
 
