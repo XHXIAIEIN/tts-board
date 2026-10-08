@@ -5,3 +5,5 @@ outputs/
 .claude/
 .tmp/
 .trash/
+plugins/*
+!plugins/README.md

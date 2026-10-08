@@ -1,7 +1,8 @@
 """A stand-in backend for tts-board: it serves the page and answers its API with synthetic speech.
 
-Run:  python server/mock_server.py [port]      (Python 3.8+, standard library only)
-Then open http://127.0.0.1:8765/.
+Run:  python server/mock_server.py [port] [--data DIR]      (Python 3.8+, standard library only)
+Then open http://127.0.0.1:8765/. --data serves another project's data folder, such as a plugin's,
+at data/ instead of the repo's example.
 
 The "speech" is a buzzing vowel per syllable at a pitch per voice, so the queue, the role voices,
 cancelling and the scene mix can be tried without a TTS model. It honours level_db, pace, pitch_st,
@@ -9,6 +10,7 @@ beats, gaps and breaths, and ignores instructions, spaces and jitter. A real bac
 same endpoints; README.md describes them.
 """
 
+import argparse
 import array
 import hashlib
 import heapq
@@ -426,9 +428,17 @@ def parse_form(content_type, body):
 
 
 if __name__ == "__main__":
-    port = int(sys.argv[1]) if len(sys.argv) > 1 else 8765
-    server = ThreadingHTTPServer(("127.0.0.1", port), Handler)
-    print(f"tts-board mock: http://127.0.0.1:{port}/", flush=True)
+    ap = argparse.ArgumentParser(description="tts-board mock backend")
+    ap.add_argument("port", nargs="?", type=int, default=8765)
+    ap.add_argument("--data", type=Path, help="project data folder served at data/ (default: the repo's data/)")
+    args = ap.parse_args()
+    if args.data:
+        data = args.data.resolve()
+        if not (data / "project.json").is_file():
+            sys.exit(f"{data} 里没有 project.json")
+        MOUNTS[1] = ("data/", data)
+    server = ThreadingHTTPServer(("127.0.0.1", args.port), Handler)
+    print(f"tts-board mock: http://127.0.0.1:{args.port}/  data: {MOUNTS[1][1]}", flush=True)
     try:
         server.serve_forever()
     except KeyboardInterrupt:

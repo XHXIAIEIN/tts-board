@@ -179,6 +179,16 @@ Excuse me... do you sell umbrellas?
 
 返回 `{url, duration, starts}`。`starts` 是每句（含吸气）在成品里开始的秒数，播放整段时页面据此高亮当前句。
 
+## 插件
+
+自己的项目可以放在 `plugins/` 下的一个文件夹里，例如 `plugins/my-project/`。Git 忽略 `plugins/` 下除 `plugins/README.md` 以外的全部内容，所以项目的数据和后端留在本机，而页面跟着仓库更新。插件放项目的 `data/`，也可以带自己的后端，`plugins/README.md` 写了插件的布局和后端要做的事。
+
+模拟后端的 `--data` 选项把另一个文件夹作为 `data/` 提供，用它可以不开真正的后端就检查插件的剧本。端口仍是可选的第一个参数：
+
+```bash
+python server/mock_server.py 9000 --data plugins/my-project/data
+```
+
 ## 文件
 
 | 文件 | 内容 |
@@ -189,6 +199,7 @@ Excuse me... do you sell umbrellas?
 | `web/api.js` | 对后端接口的全部调用 |
 | `data/` | 示例项目，页面以 `data/` 的地址读取 |
 | `server/` | 模拟后端 `mock_server.py` |
+| `plugins/` | 插件，见「插件」；Git 只跟踪其中的 `README.md` |
 | `docs/` | README 里的截图 |
 
 ## 许可
