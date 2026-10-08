@@ -52,13 +52,14 @@ export function formatTag({ tone = "", notes = [], params = {} }) {
   return items.filter(Boolean).join("，");
 }
 
-// A pause mark splits a line into beats: "<#0.5#>" pauses that many seconds (PAUSE_RANGE),
-// " / " pauses beat_gap and " // " long_beat_gap. "［note］" at the start of a beat adds to that
-// beat's instruction. A beat's `pause` is the seconds of its own mark, or null for " / " and " // ".
+// Beat marks split a line into beats: the pause mark "<#0.5#>" pauses the written seconds
+// (PAUSE_RANGE), " / " pauses beat_gap and " // " long_beat_gap. "［note］" at the start of a beat adds
+// to that beat's instruction. A beat's `pause` is the seconds of the mark after it, or null for " / ",
+// " // " and a pause mark that holds no number (it then pauses beat_gap).
 export const PAUSE_RANGE = [0.05, 3];
-const PAUSE_MARK = /\s*<#\s*(-?[\d.]+)\s*#>\s*|\s+(\/\/?)\s+/;
+const BEAT_SPLIT = /\s*<#([^#]*)#>\s*|\s+(\/\/?)\s+/;
 export function parseBeats(text) {
-  const parts = text.split(PAUSE_MARK);
+  const parts = text.split(BEAT_SPLIT);
   const beats = [];
   for (let i = 0; i < parts.length; i += 3) {
     const raw = parts[i] || "";
@@ -104,8 +105,8 @@ export function resolve({ line, tones, defaults, rooms = {}, scene = {}, role = 
   plan.pace = Math.round(plan.pace * 100) / 100;
   plan.instruction = join(preset.instruction, ...(line.notes || []));
   plan.text = plainText(line.text);
-  // The backend generates the beats as a chain: the first beat takes the instruction, and each
-  // later beat continues the audio of the one before it.
+  // A backend that supports beats generates them as a chain: the first beat takes the instruction,
+  // and each later beat continues the audio of the one before it.
   const beats = parseBeats(line.text);
   plan.beats = beats.length > 1
     ? beats.map((b, i) => ({
@@ -118,7 +119,7 @@ export function resolve({ line, tones, defaults, rooms = {}, scene = {}, role = 
   return plan;
 }
 
-// The values that differ from a plain line, one tag each; `defaults` gives the usual tail
+// The values that differ from a plain line, one tag each. A tail equal to defaults.tail is the usual one and gets no tag.
 export function describe(plan, defaults = {}) {
   const sign = v => (v > 0 ? "+" : "") + v;
   const bits = [];

@@ -220,8 +220,9 @@ function parseScript() {
 // wraps like the textarea above it.
 const scriptHl = document.getElementById("script-hl");
 const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
-// A text row with its pause marks "<#0.5#>" marked like params
-const escText = t => esc(t).replace(/&lt;#[^#]*#&gt;/g, m => `<span class="hl-kv">${m}</span>`);
+// A text row with its pause marks "<#0.5#>" marked like params, and in red when they hold no number
+const escText = t => esc(t).replace(/&lt;#([^#]*)#&gt;/g, (m, secs) =>
+  `<span class="${Number.isFinite(parseFloat(secs)) ? "hl-kv" : "hl-bad"}">${m}</span>`);
 function paintScript() {
   // A direction's first plain item is the tone; key=value items are params; the rest are notes.
   const items = (text, firstIsTone) => text.split(/(，)/).map((p, k) =>
@@ -339,7 +340,7 @@ const DICT = [
     { key: "level_db", side: "−10…8 dB", desc: "音量，在语气的音量上再加减", act: { kind: "param", value: "level_db" } },
     { key: "pace", side: "0.7…1.4", desc: "语速倍数", act: { kind: "param", value: "pace" } },
     { key: "pitch_st", side: "−3…3", desc: "音高，半音；改声音多于改情绪", act: { kind: "param", value: "pitch_st" } },
-    { key: "tail", side: `1…2，默认 ${DATA.defaults.tail ?? 1}`, desc: "停顿前最后一个音节拖长的倍数，1 不拖：干脆的命令、冷笑取小，话音渐弱、没说完取大", act: { kind: "param", value: "tail" } },
+    { key: "tail", side: `1…2，默认 ${DATA.defaults.tail ?? 1}`, desc: "尾音：每拍末尾拖长的倍数，1 不拖；干脆的命令、冷笑取小，话音渐弱、没说完取大", act: { kind: "param", value: "tail" } },
     { key: "gap_before", side: "−1…3 秒", desc: "这句之前的停顿：抢话 0.1–0.3，接话 0.4–0.6，揭晓前 0.8–1.5；负数压着上一句开口，两句交叠", act: { kind: "param", value: "gap_before" } },
     { key: "inhale", side: "0…0.8 秒", desc: "开口前的吸气声，拼接整段时加入，可以和上一句的结尾交叠", act: { kind: "param", value: "inhale" } },
     { key: "exhale", side: "0…1.2 秒", desc: "说完后的呼气声，拼接整段时加入，可以和下一句交叠", act: { kind: "param", value: "exhale" } },
@@ -348,9 +349,9 @@ const DICT = [
     { key: DRY, side: "", desc: "不加混响", act: { kind: "room", value: DRY } },
     ...Object.values(ROOMS).map(r => ({ key: r.label, side: r.rt60 ? `混响 ${r.rt60}s` : "", desc: `room=${r.label}`, act: { kind: "room", value: r.label } })),
   ] },
-  { title: "停顿", note: "点一下插到光标处。停顿把一句分成几拍，后一拍接着前一拍的声音生成，语气连得上", rows: [
-    { key: "<#0.5#>", side: `${PAUSE_RANGE[0]}…${PAUSE_RANGE[1]} 秒`, desc: "在这里停这么多秒，写在演员会停顿、换气的地方", act: { kind: "text", value: "<#0.5#>" } },
-    { key: " / ", side: `${DATA.defaults.beat_gap ?? 0}s`, desc: "分拍，停 beat_gap 秒", act: { kind: "text", value: " / " } },
+  { title: "分拍与停顿", note: "点一下插到光标处。记号把一句分成几拍，后一拍接着前一拍的声音生成，情绪连得上", rows: [
+    { key: "<#0.5#>", side: `${PAUSE_RANGE[0]}…${PAUSE_RANGE[1]} 秒`, desc: "停顿记号：这拍后停记号里的秒数，写在演员会停顿、换气的地方", act: { kind: "text", value: "<#0.5#>" } },
+    { key: " / ", side: `${DATA.defaults.beat_gap ?? 0}s`, desc: "分拍，拍间停右边的秒数", act: { kind: "text", value: " / " } },
     { key: " // ", side: `${DATA.defaults.long_beat_gap ?? 0}s`, desc: "分拍并停得更久", act: { kind: "text", value: " // " } },
     { key: "［细节］", side: "", desc: "写在拍首，用全角方括号，只给这一拍加细节", act: { kind: "text", value: "［］" } },
   ] },
@@ -681,7 +682,7 @@ function renderLines() {
     if (plan.ownRoom) tag(roomLabel(plan.room));
     if (plan.badRoom) tag(`没有空间“${plan.badRoom}”`, "bad");
     tags.title = plan.beats
-      ? plan.beats.map((b, k) => `第 ${k + 1} 拍：${k ? "接着上一拍" : b.instruction || "（无指令）"}`).join("\n")
+      ? plan.beats.map((b, k) => `第 ${k + 1} 拍：${k ? "接着上一拍的声音，不带指令" : b.instruction || "（无指令）"}`).join("\n")
       : plan.instruction ? `指令：${plan.instruction}` : "无指令";
     row.querySelector(".play").onclick = () => { if (l.url) { stopPlayback(); highlight(l); playOne(l.url, () => highlight(null)); } };
     row.querySelector(".redo").onclick = () => (l.state === "queued" ? cancelLine(l) : generateLine(l));
