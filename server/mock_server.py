@@ -6,7 +6,7 @@ at data/ instead of the repo's example.
 
 The "speech" is a buzzing vowel per syllable at a pitch per voice, so the queue, the role voices,
 cancelling and the scene mix can be tried without a TTS model. It honours level_db, pace, pitch_st,
-beats, gaps and breaths, and ignores instructions, spaces and jitter. A real backend implements the
+beats, gaps and breaths, and ignores instructions, the line-end tail, spaces and jitter. A real backend implements the
 same endpoints; README.md describes them.
 """
 

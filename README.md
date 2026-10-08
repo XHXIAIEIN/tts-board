@@ -21,7 +21,7 @@ python server/mock_server.py
 2. 在「模型」里选一个模型，角色卡片随模型的能力变化
 3. 点「生成整段」，再点「播放整段」
 
-模拟后端遵循音量、语速、音高、分拍、停顿和呼吸，忽略表演指令、空间和抖动。生成的音频在 `server/outputs/`。
+模拟后端遵循音量、语速、音高、分拍、停顿和呼吸，忽略表演指令、尾音、空间和抖动。生成的音频在 `server/outputs/`。
 
 ## 写剧本
 
@@ -41,7 +41,7 @@ Excuse me... do you sell umbrellas?
 - `[语气，细节，键=值]` 是这句的导演指令，可以省略，也可以写成 `【】`。各项用全角逗号 `，` 分开：第一个不带 `=` 的项是语气，`键=值` 是参数，其余各项是细节。细节里的半角逗号不断开，所以一项细节可以列几个要求
 - `角色：译文` 写谁在说，下一行是要念的台词。没有译文时写成一行 `角色：台词`
 - 前面没有角色行的台词归「旁白」
-- 台词里的 ` / ` 把一句分成几拍，每拍单独生成，拍间停 `beat_gap` 秒；` // ` 停 `long_beat_gap` 秒。拍首用全角方括号写的 `［细节］` 只加给这一拍
+- 台词里的停顿记号把一句分成几拍：`<#0.5#>` 停这么多秒（0.05 到 3），` / ` 停 `beat_gap` 秒，` // ` 停 `long_beat_gap` 秒。后端按顺序生成各拍，后一拍接着前一拍的声音生成，所以语气跨过停顿还连得上。拍首用全角方括号写的 `［细节］` 只加给这一拍
 
 语气在 `tones` 里有预设时，带来预设的表演指令和参数；没有预设的语气词本身就是表演指令。语气和细节依次拼成交给模型的表演指令。
 
@@ -56,12 +56,13 @@ Excuse me... do you sell umbrellas?
 | `level_db` | 音量偏移，dB |
 | `pace` | 语速倍数 |
 | `pitch_st` | 音高偏移，半音 |
+| `tail` | 停顿前最后一个音节拖长的倍数，1 不拖。干脆的命令、冷笑取小，话音渐弱、没说完取大 |
 | `gap_before` | 这句开口前的停顿，秒；负数让这句压着上一句开口 |
 | `inhale` | 开口前的吸气声，秒 |
 | `exhale` | 说完后的呼气声，秒 |
 | `room` | 这句的空间，写 `rooms` 里的 `label` 或键，`干声` 表示不加混响 |
 
-一句的最终设置按这个顺序合并：`defaults`、语气预设、场景、角色、这句。`level_db` 和 `pitch_st` 相加，`pace` 相乘，其余参数取最后设置它的一层。时间线上每句下面的标签列出与普通句子不同的值，鼠标悬停可以看到完整的表演指令。
+一句的最终设置按这个顺序合并：`defaults`、语气预设、场景、角色、这句。`level_db` 和 `pitch_st` 相加，`pace` 相乘，其余参数取最后设置它的一层。`tail` 改变生成的音频，改它要重新生成这句。时间线上每句下面的标签列出与普通句子不同的值，鼠标悬停可以看到完整的表演指令。
 
 ### 角色的声音
 
@@ -95,7 +96,7 @@ Excuse me... do you sell umbrellas?
 | `anchor_min_f0_range` | 声音样本音高起伏的下限，半音，见「角色的声音」。合适的值随语言和素材变化，不设就不检查 |
 | `default_model` | 打开页面时选中的模型 id |
 | `scripts` | `data/scripts/` 下的剧本文件名 |
-| `defaults` | `gap`、`beat_gap`、`long_beat_gap`、`level_db`、`pace`、`pitch_st` 的默认值，以及传给后端的 `jitter` |
+| `defaults` | `gap`、`beat_gap`、`long_beat_gap`、`level_db`、`pace`、`pitch_st`、`tail` 的默认值，以及传给后端的 `jitter` |
 | `tones` | 语气词到预设的映射：`instruction` 是表演指令，另可带上面的任一参数 |
 | `rooms` | 空间：`label` 是剧本里写的名称，其余字段原样传给后端 |
 | `lines` | 单句对比里的常用句，字段同剧本文件的 `lines` |
@@ -138,12 +139,13 @@ Excuse me... do you sell umbrellas?
 | `model`、`text` | 必填。`text` 是去掉分拍记号的整句台词 |
 | `priority` | 数值大的先生成。单独点的句子和它需要的样本最先，整段排队时的角色样本其次，整段的句子最后，按顺序排 |
 | `level_db`、`pace`、`pitch_st` | 这句的音量、语速和音高，后端在生成时应用 |
+| `tail` | 每拍最后一个音节拖长的倍数，1 不拖 |
 | `voice_prompt` | 声音描述或表演指令 |
 | `speaker`、`seed` | 说话人编号、随机种子 |
 | `ref_audio` | 上传的参考音频文件 |
 | `ref_file` | 后端已有的参考音频，取自之前结果里的 `file` 或 `ref_saved` |
 | `ref_text` | 参考音频的原文 |
-| `beats` | 分拍的 JSON 列表 `[{text, instruction, gap_after}]`。不支持分拍的后端读 `text` 即可 |
+| `beats` | 分拍的 JSON 列表 `[{text, instruction, note, gap_after}]`：`gap_after` 是这拍后的停顿秒数，`note` 是这拍自己的 `［细节］`，已经拼进 `instruction`。后端按顺序生成，第一拍用 `instruction`，后面各拍接着前一拍的声音生成。不支持分拍的后端读 `text` 即可 |
 
 ### `GET api/jobs?ids=a,b`
 
