@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>台词配音</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700&family=Noto+Sans+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<main>
+  <h1>台词配音</h1>
+
+  <h2 class="section">分镜配音</h2>
+  <section class="scene">
+    <div class="input scene-bar">
+      <label for="scene-model" class="inline">模型</label>
+      <select id="scene-model"></select>
+      <span class="hint scene-note" id="scene-model-note"></span>
+      <span class="bar-sep"></span>
+      <span class="hint">场景</span>
+      <div class="presets" id="scene-presets"></div>
+    </div>
+
+    <div class="scene-work" id="scene-work">
+      <div class="input editor">
+        <div class="panel-head"><b>剧本</b><span class="hint" id="editor-hint"></span></div>
+        <div class="script-box"><pre class="script-hl" id="script-hl" aria-hidden="true"></pre><textarea id="script" spellcheck="false" aria-label="剧本"></textarea></div>
+      </div>
+      <div class="splitter" id="splitter" role="separator" aria-orientation="vertical" aria-label="调整写法字典的宽度" tabindex="0" title="拖动调整宽度，双击恢复"></div>
+      <aside class="input dict" id="dict">
+        <div class="panel-head"><b>写法字典</b><span class="hint dict-target" id="dict-target"></span></div>
+        <input type="search" id="dict-q" placeholder="搜索语气、参数、空间" aria-label="搜索写法字典">
+        <div class="dict-body" id="dict-body"></div>
+      </aside>
+    </div>
+
+    <div class="input roles-panel">
+      <div class="panel-head"><b>角色声音</b><span class="hint" id="roles-count"></span></div>
+      <div class="roles" id="roles"></div>
+    </div>
+
+    <div class="input timeline">
+      <div class="timeline-head">
+        <div class="th-title">
+          <b>时间线</b><span class="hint" id="lines-count"></span>
+          <span class="status" id="scene-status"></span>
+        </div>
+        <div class="th-tools">
+          <button class="primary" id="scene-go">生成整段</button>
+          <button class="plain" id="scene-play">播放整段</button>
+          <button class="plain" id="scene-stop">停止</button>
+          <span class="th-sep"></span>
+          <button class="plain" id="scene-download">下载整段</button>
+        </div>
+        <div class="th-progress"><div id="scene-progress"></div></div>
+      </div>
+      <div class="lines" id="lines"></div>
+    </div>
+  </section>
+
+  <h2 class="section">单句对比</h2>
+  <section class="input">
+    <label for="text">文本</label>
+    <textarea id="text"></textarea>
+    <div class="hint" id="gloss"></div>
+    <div class="presets" id="presets"></div>
+    <div id="script-presets"></div>
+    <div class="row">
+      <button class="primary" id="all">所有模型依次生成</button>
+    </div>
+  </section>
+
+  <h3 class="group">支持多角色</h3>
+  <section class="grid" id="grid-multi"></section>
+  <h3 class="group">只有一种声音</h3>
+  <section class="grid" id="grid-single"></section>
+</main>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>

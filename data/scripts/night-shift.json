@@ -1,0 +1,73 @@
+{
+  "title": "夜班",
+  "room": "room",
+  "roles": {
+    "店员": {
+      "voice": "A young woman in her twenties, clear and calm voice",
+      "personality": "quiet and kind, a little tired"
+    },
+    "顾客": {
+      "voice": "A man in his forties, slightly hoarse voice",
+      "personality": "worn out, polite, embarrassed to ask for help"
+    }
+  },
+  "lines": [
+    {
+      "id": "旁白：凌晨三点",
+      "role": "旁白",
+      "text": "It was three in the morning, and the store was empty.",
+      "gloss": "凌晨三点，店里空无一人。"
+    },
+    {
+      "id": "顾客：有伞吗",
+      "role": "顾客",
+      "text": "Excuse me... do you sell umbrellas?",
+      "gloss": "打扰一下……你们卖伞吗？",
+      "voice": "A man in his forties, hoarse, out of breath"
+    },
+    {
+      "id": "店员：第二排",
+      "role": "店员",
+      "text": "Second aisle, next to the batteries.",
+      "gloss": "第二排，电池旁边。"
+    },
+    {
+      "id": "顾客：走了一小时",
+      "role": "顾客",
+      "text": "I've been walking in the rain for an hour.",
+      "gloss": "我在雨里走了一个小时。"
+    },
+    {
+      "id": "店员：坐一会儿",
+      "role": "店员",
+      "text": "Sit down for a minute. I'll make you some tea.",
+      "gloss": "坐一会儿吧，我给你泡杯茶。"
+    },
+    {
+      "id": "顾客：为什么",
+      "role": "顾客",
+      "text": "Why would you do that for a stranger?",
+      "gloss": "你为什么对一个陌生人这么好？"
+    },
+    {
+      "id": "店员：曾经",
+      "role": "店员",
+      "text": "Because someone once // did the same for me.",
+      "gloss": "因为曾经也有人这样对我。"
+    }
+  ],
+  "scenes": [
+    {
+      "label": "夜班",
+      "lines": [
+        { "id": "旁白：凌晨三点", "tone": "平静", "room": "" },
+        { "id": "顾客：有伞吗", "tone": "着急", "gap_before": 0.8, "inhale": 0.3 },
+        { "id": "店员：第二排", "tone": "平静", "gap_before": 0.5 },
+        { "id": "顾客：走了一小时", "tone": "委屈", "note": "half laughing at himself", "gap_before": 0.6, "exhale": 0.5 },
+        { "id": "店员：坐一会儿", "tone": "温柔", "gap_before": 0.4 },
+        { "id": "顾客：为什么", "tone": "惊喜", "note": "quiet, moved rather than excited", "level_db": -2 },
+        { "id": "店员：曾经", "tone": "温柔", "gap_before": 1.0 }
+      ]
+    }
+  ]
+}

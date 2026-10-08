@@ -1,0 +1,61 @@
+{
+  "title": "台词配音",
+  "anchor_text": "Today I got up early, walked to the market and bought fresh bread for breakfast.",
+  "default_model": "mock-design",
+  "scripts": [
+    "night-shift.json",
+    "phone-call.json"
+  ],
+  "defaults": {
+    "gap": 0.35, "level_db": 0, "pace": 1.0, "pitch_st": 0, "beat_gap": 0.4, "long_beat_gap": 0.8,
+    "jitter": {
+      "seed": 1,
+      "level_db": { "magnitude": 0.8, "period": 3, "period_random": 1, "wave": "noise", "scatter": 0.6 },
+      "gap": { "scatter": 0.06 },
+      "pace": { "magnitude": 0.02, "period": 8, "period_random": 3, "wave": "noise", "scatter": 0.015 },
+      "pitch_st": { "magnitude": 0.15, "period": 10, "period_random": 4, "wave": "noise", "scatter": 0.1 },
+      "breath": { "scatter": 0.25 }
+    }
+  },
+  "tones": {
+    "平静": { "instruction": "calm and steady" },
+    "冷淡": { "instruction": "cold and indifferent" },
+    "冷漠": { "instruction": "flat and emotionless, low, quiet and slow, clipped words, no warmth at all" },
+    "生气": { "instruction": "angry", "level_db": 2 },
+    "大吼": { "instruction": "very angry, shouting loudly", "level_db": 5 },
+    "委屈": { "instruction": "on the verge of tears, voice breaking and shaky, soft, slow with small pauses, sniffling", "level_db": -3 },
+    "哭腔": { "instruction": "crying, sad and trembling", "level_db": -3 },
+    "小声": { "instruction": "whispering softly", "level_db": -7 },
+    "惊慌": { "instruction": "panicked and shouting, out of breath, very fast, high pitch, stumbling over words", "level_db": 2 },
+    "着急": { "instruction": "anxious and hurried" },
+    "惊喜": { "instruction": "surprised and excited", "level_db": 2 },
+    "得意": { "instruction": "smug and pleased" },
+    "温柔": { "instruction": "gentle and warm", "level_db": -3 },
+    "冷笑": { "instruction": "starts with a short scoffing laugh, mocking and sarcastic, sharp, rising pitch on the question" },
+    "尖刻": { "instruction": "sneering and contemptuous, high and nasal, sharp biting words, looking down on someone" },
+    "霸气": { "instruction": "cold and commanding, low pitch, slow, every word firm and heavy, no hesitation" },
+    "后悔": { "instruction": "begging, voice trembling and cracking, close to crying, soft and slow", "level_db": -3 },
+    "坚定": { "instruction": "firm and determined" },
+    "暧昧": { "instruction": "intimate and sultry, low and breathy, slow, lingering on the vowels, a soft smile in the voice", "level_db": -4, "inhale": 0.3 },
+    "耳语": { "instruction": "an intimate breathy whisper right at the ear, very soft and slow, more air than voice", "level_db": -7, "inhale": 0.35, "exhale": 0.5 }
+  },
+  "rooms": {
+    "street": { "label": "街边", "rt60": 0.35, "predelay_ms": 8, "wet_db": -21, "damping": 0.6, "size_ms": 30 },
+    "room": { "label": "室内", "rt60": 0.6, "predelay_ms": 6, "wet_db": -17, "damping": 0.4, "size_ms": 45 },
+    "hall": { "label": "大厅", "rt60": 1.8, "predelay_ms": 25, "wet_db": -13, "damping": 0.3, "size_ms": 90 }
+  },
+  "lines": [
+    {
+      "id": "问候",
+      "role": "",
+      "text": "Hello everyone, and welcome back.",
+      "gloss": "大家好，欢迎回来。"
+    },
+    {
+      "id": "长句",
+      "role": "",
+      "text": "The last train had already left, so we walked home along the river, talking about nothing at all.",
+      "gloss": "末班车已经开走了，我们就沿着河走回家，一路闲聊。"
+    }
+  ]
+}

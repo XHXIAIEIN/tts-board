@@ -1,0 +1,65 @@
+{
+  "title": "电话",
+  "room": "",
+  "roles": {
+    "母亲": {
+      "voice": "A woman in her fifties, warm but tense voice",
+      "personality": "worried, quick to anger, quicker to forgive"
+    },
+    "儿子": {
+      "voice": "A teenage boy, low and mumbling voice",
+      "personality": "defensive at first, then guilty"
+    }
+  },
+  "lines": [
+    {
+      "id": "母亲：在哪",
+      "role": "母亲",
+      "text": "Where are you? It's almost midnight!",
+      "gloss": "你在哪儿？都快半夜了！"
+    },
+    {
+      "id": "儿子：朋友家",
+      "role": "儿子",
+      "text": "At a friend's place. I'm fine.",
+      "gloss": "在朋友家。我没事。"
+    },
+    {
+      "id": "母亲：十点",
+      "role": "母亲",
+      "text": "You said you'd be home by ten!",
+      "gloss": "你说过十点前回家的！"
+    },
+    {
+      "id": "儿子：对不起",
+      "role": "儿子",
+      "text": "I know. I'm sorry.",
+      "gloss": "我知道。对不起。"
+    },
+    {
+      "id": "旁白：沉默",
+      "role": "旁白",
+      "text": "For a moment, neither of them spoke."
+    },
+    {
+      "id": "母亲：回来",
+      "role": "母亲",
+      "text": "Just... come home safe, okay?",
+      "gloss": "平安回来就好，好吗？"
+    }
+  ],
+  "scenes": [
+    {
+      "label": "电话",
+      "gap": 0.3,
+      "lines": [
+        { "id": "母亲：在哪", "tone": "着急" },
+        { "id": "儿子：朋友家", "tone": "冷淡", "gap_before": 0.2 },
+        { "id": "母亲：十点", "tone": "生气", "gap_before": -0.2 },
+        { "id": "儿子：对不起", "tone": "小声", "gap_before": 0.9, "exhale": 0.6 },
+        { "id": "旁白：沉默", "tone": "平静", "gap_before": 1.2 },
+        { "id": "母亲：回来", "tone": "后悔", "note": "the anger gone, tired and soft", "gap_before": 0.8, "inhale": 0.4 }
+      ]
+    }
+  ]
+}
