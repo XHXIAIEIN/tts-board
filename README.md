@@ -4,19 +4,24 @@ tts-board 是一个给多角色对白配音的网页。在页面上按固定格�
 
 页面负责写剧本、排队和播放，生成和拼接由后端完成，后端可以用任何语言和模型，只要实现下面的「后端接口」。仓库带一个只用 Python 标准库的模拟后端，它用合成的元音代替语音，可以直接试用页面的全部流程。
 
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/screenshot-dark.webp">
+  <img src="docs/screenshot-light.webp" alt="tts-board 的分镜配音界面：左边是剧本编辑框，右边是写法字典，下面是角色声音和逐句的时间线">
+</picture>
+
 ## 试用
 
 ```bash
-python mock_server.py
+python server/mock_server.py
 ```
 
-然后打开 http://127.0.0.1:8765/ 。端口可以作为参数传入，例如 `python mock_server.py 9000`。模拟后端需要 Python 3.8 以上；页面需要 2022 年以后的 Chrome、Edge、Firefox 或 Safari。
+然后打开 http://127.0.0.1:8765/ 。端口可以作为参数传入，例如 `python server/mock_server.py 9000`。模拟后端需要 Python 3.8 以上；页面需要 2022 年以后的 Chrome、Edge、Firefox 或 Safari。
 
 1. 在「场景」里点一个示例场景，剧本载入左边的编辑框
 2. 在「模型」里选一个模型，角色卡片随模型的能力变化
 3. 点「生成整段」，再点「播放整段」
 
-模拟后端遵循音量、语速、音高、分拍、停顿和呼吸，忽略表演指令、空间和抖动。生成的音频在 `outputs/`。
+模拟后端遵循音量、语速、音高、分拍、停顿和呼吸，忽略表演指令、空间和抖动。生成的音频在 `server/outputs/`。
 
 ## 写剧本
 
@@ -105,7 +110,7 @@ Excuse me... do you sell umbrellas?
 
 ## 后端接口
 
-页面用相对路径请求后端，所以后端要在同一个地址下提供页面文件、`data/` 和下面的接口。出错时返回非 2xx 状态和 `{"detail": "说明"}`，页面会显示这段说明。`mock_server.py` 是这些接口的一个可运行的实现。
+页面用相对路径请求后端，所以后端要在同一个地址下提供页面文件、`data/` 和下面的接口。出错时返回非 2xx 状态和 `{"detail": "说明"}`，页面会显示这段说明。`server/mock_server.py` 是这些接口的一个可运行的实现。
 
 ### `GET api/models`
 
@@ -178,7 +183,8 @@ Excuse me... do you sell umbrellas?
 | `plan.js` | 导演指令行的读写、分拍，以及把各层设置合并成一句的计划 |
 | `api.js` | 对后端接口的全部调用 |
 | `data/` | 示例项目 |
-| `mock_server.py` | 模拟后端 |
+| `server/` | 模拟后端 `mock_server.py` |
+| `docs/` | README 里的截图 |
 
 ## 许可
 

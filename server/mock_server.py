@@ -1,6 +1,6 @@
 """A stand-in backend for tts-board: it serves the page and answers its API with synthetic speech.
 
-Run:  python mock_server.py [port]      (Python 3.8+, standard library only)
+Run:  python server/mock_server.py [port]      (Python 3.8+, standard library only)
 Then open http://127.0.0.1:8765/.
 
 The "speech" is a buzzing vowel per syllable at a pitch per voice, so the queue, the role voices,
@@ -28,8 +28,9 @@ from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
-ROOT = Path(__file__).resolve().parent
-OUT = ROOT / "outputs"
+HERE = Path(__file__).resolve().parent
+PAGE = HERE.parent  # the page and its data/
+OUT = HERE / "outputs"  # generated audio, served at outputs/
 (OUT / "refs").mkdir(parents=True, exist_ok=True)
 SR = 16000
 LOAD_SECONDS = 1.0  # the first job of a model waits this long, like loading weights
@@ -370,12 +371,15 @@ class Handler(BaseHTTPRequestHandler):
         self.send_json({"cancelled": jobs.cancel(m.group(1))})
 
     def static(self, path, head):
-        """Files of the page, its data and outputs/; nothing hidden and no Python sources.
-        Supports one byte range, so audio can seek."""
+        """Files of the page and its data, and generated audio at outputs/; nothing hidden and
+        nothing of server/. Supports one byte range, so audio can seek."""
         rel = unquote(path).lstrip("/") or "index.html"
-        target = (ROOT / rel).resolve()
-        if (ROOT not in target.parents or not target.is_file() or target.suffix not in TYPES
-                or any(part.startswith(".") for part in target.relative_to(ROOT).parts)):
+        generated = rel.startswith("outputs/")
+        base = OUT if generated else PAGE
+        target = (base / (rel[len("outputs/"):] if generated else rel)).resolve()
+        if (base not in target.parents or not target.is_file() or target.suffix not in TYPES
+                or any(part.startswith(".") for part in target.relative_to(base).parts)
+                or HERE in target.parents and not generated):
             return self.fail(404, "没有这个文件")
         data = target.read_bytes()
         status, lo, hi = 200, 0, len(data) - 1
@@ -392,7 +396,7 @@ class Handler(BaseHTTPRequestHandler):
         self.send_header("Content-Length", str(hi - lo + 1))
         if status == 206:
             self.send_header("Content-Range", f"bytes {lo}-{hi}/{len(data)}")
-        if target.parent != OUT and OUT not in target.parents:
+        if not generated:
             self.send_header("Cache-Control", "no-cache")  # the page and data change while the server runs
         self.end_headers()
         if not head:
