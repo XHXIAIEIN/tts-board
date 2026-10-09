@@ -220,9 +220,11 @@ function parseScript() {
 // wraps like the textarea above it.
 const scriptHl = document.getElementById("script-hl");
 const esc = t => t.replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" })[c]);
-// A text row with its pause marks "<#0.5#>" marked like params, and in red when they hold no number
+// A text row with its pause marks "<#0.5#>" marked like params, in red when they hold no number,
+// and "［…］" in red, because it is not read and adds nothing
 const escText = t => esc(t).replace(/&lt;#([^#]*)#&gt;/g, (m, secs) =>
-  `<span class="${Number.isFinite(parseFloat(secs)) ? "hl-kv" : "hl-bad"}">${m}</span>`);
+  `<span class="${Number.isFinite(parseFloat(secs)) ? "hl-kv" : "hl-bad"}">${m}</span>`)
+  .replace(/［[^］]*］/g, m => `<span class="hl-bad">${m}</span>`);
 function paintScript() {
   // A direction's first plain item is the tone; key=value items are params; the rest are notes.
   const items = (text, firstIsTone) => text.split(/(，)/).map((p, k) =>
@@ -353,7 +355,6 @@ const DICT = [
     { key: "<#0.5#>", side: `${PAUSE_RANGE[0]}…${PAUSE_RANGE[1]} 秒`, desc: "停顿记号：这拍后停记号里的秒数，写在演员会停顿、换气的地方", act: { kind: "text", value: "<#0.5#>" } },
     { key: " / ", side: `${DATA.defaults.beat_gap ?? 0}s`, desc: "分拍，拍间停右边的秒数", act: { kind: "text", value: " / " } },
     { key: " // ", side: `${DATA.defaults.long_beat_gap ?? 0}s`, desc: "分拍并停得更久", act: { kind: "text", value: " // " } },
-    { key: "［细节］", side: "", desc: "写在拍首，用全角方括号，只给这一拍加细节", act: { kind: "text", value: "［］" } },
   ] },
 ];
 function renderDict() {
@@ -388,7 +389,6 @@ function applyDict(act) {
     replaceRange(scriptEl.selectionStart, scriptEl.selectionEnd, act.value);
     // The browser may move the caret to a character boundary, so measure from where the text went.
     const a = scriptEl.selectionEnd - act.value.length;
-    if (act.value === "［］") scriptEl.setSelectionRange(a + 1, a + 1);
     // Select the seconds of a pause mark, so typing replaces them.
     const secs = act.value.match(/^<#(.*)#>$/);
     if (secs) scriptEl.setSelectionRange(a + 2, a + 2 + secs[1].length);
@@ -625,13 +625,12 @@ function markStale(roleName) {
 
 // ---------- lines ----------
 function roomLabel(key) { return key ? ROOMS[key]?.label ?? key : DRY; }
-// The text as it is read; beat marks show as thin separators, a beat's note as its tooltip.
+// The text as it is read; beat marks show as thin separators.
 function textView(text) {
   const frag = document.createDocumentFragment();
   const beats = parseBeats(text);
   beats.forEach((b, i) => {
     const s = Object.assign(document.createElement("span"), { textContent: b.text });
-    if (b.note) { s.className = "beat-note"; s.title = `这一拍：${b.note}`; }
     frag.append(s);
     if (i < beats.length - 1) frag.append(Object.assign(document.createElement("span"), { className: "beat-sep", textContent: b.pause !== null ? `${b.pause}s` : b.long ? "//" : "/" }));
   });

@@ -53,19 +53,18 @@ export function formatTag({ tone = "", notes = [], params = {} }) {
 }
 
 // Beat marks split a line into beats: the pause mark "<#0.5#>" pauses the written seconds
-// (PAUSE_RANGE), " / " pauses beat_gap and " // " long_beat_gap. "［note］" at the start of a beat adds
-// to that beat's instruction. A beat's `pause` is the seconds of the mark after it, or null for " / ",
-// " // " and a pause mark that holds no number (it then pauses beat_gap).
+// (PAUSE_RANGE), " / " pauses beat_gap and " // " long_beat_gap. A beat's `pause` is the seconds of
+// the mark after it, or null for " / ", " // " and a pause mark that holds no number (it then pauses
+// beat_gap). Text in full-width brackets "［…］" is left out of what is read.
 export const PAUSE_RANGE = [0.05, 3];
 const BEAT_SPLIT = /\s*<#([^#]*)#>\s*|\s+(\/\/?)\s+/;
 export function parseBeats(text) {
   const parts = text.split(BEAT_SPLIT);
   const beats = [];
   for (let i = 0; i < parts.length; i += 3) {
-    const raw = parts[i] || "";
-    const m = raw.trim().match(/^［([^］]*)］\s*(.*)$/);
+    const raw = (parts[i] || "").replace(/［[^］]*］/g, " ").replace(/\s+/g, " ");
     const secs = parts[i + 1] !== undefined ? parseFloat(parts[i + 1]) : NaN;
-    beats.push({ text: (m ? m[2] : raw).trim(), note: m ? m[1].trim() : "", long: parts[i + 2] === "//",
+    beats.push({ text: raw.trim(), long: parts[i + 2] === "//",
       pause: Number.isFinite(secs) ? Math.min(Math.max(secs, PAUSE_RANGE[0]), PAUSE_RANGE[1]) : null });
   }
   return beats.filter(b => b.text);
@@ -111,8 +110,7 @@ export function resolve({ line, tones, defaults, rooms = {}, scene = {}, role = 
   plan.beats = beats.length > 1
     ? beats.map((b, i) => ({
         text: b.text,
-        instruction: join(plan.instruction, b.note),
-        note: b.note,
+        instruction: plan.instruction,
         gap_after: i < beats.length - 1 ? b.pause ?? (b.long ? defaults.long_beat_gap : defaults.beat_gap) ?? 0 : 0,
       }))
     : null;

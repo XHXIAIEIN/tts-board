@@ -174,7 +174,6 @@ select.room-select { width: auto; padding: 6px 8px; }
 .line.cur { background: var(--chip); }
 .line.now { background: var(--now); }
 .line .spoken .beat-sep { color: var(--muted); margin: 0 .45em; font-size: 13px; }
-.line .spoken .beat-note { text-decoration: underline dotted var(--muted); text-underline-offset: 3px; }
 .line .tags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 3px; cursor: help; }
 .line .tags:empty { display: none; }
 .ltag { font-size: 12px; line-height: 18px; padding: 0 6px; border-radius: 4px; background: var(--chip); color: var(--muted); font-variant-numeric: tabular-nums; }
