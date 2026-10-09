@@ -1,0 +1,27 @@
+{
+  "version": "0.0.1",
+  "configurations": [
+    {
+      "name": "tts-board-mock",
+      "runtimeExecutable": "python3",
+      "runtimeArgs": [
+        "server/mock_server.py",
+        "8765"
+      ],
+      "port": 8765
+    },
+    {
+      "name": "khmer-tts",
+      "runtimeExecutable": "uv",
+      "runtimeArgs": [
+        "run",
+        "--no-sync",
+        "--directory",
+        "plugins/khmer",
+        "python",
+        "backend/app.py"
+      ],
+      "port": 7861
+    }
+  ]
+}
