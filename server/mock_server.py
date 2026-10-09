@@ -17,6 +17,7 @@ import heapq
 import itertools
 import json
 import math
+import os
 import random
 import re
 import sys
@@ -31,7 +32,7 @@ from pathlib import Path
 from urllib.parse import parse_qs, unquote, urlsplit
 
 HERE = Path(__file__).resolve().parent
-OUT = HERE / "outputs"  # generated audio
+OUT = Path(os.environ.get("TTS_BOARD_OUT_DIR", HERE.parent.parent / "tts-board-out")).resolve() / "mock" / "outputs"
 # URL prefix -> folder served there: the generated audio, the project's data, and the page at the root
 MOUNTS = [("outputs/", OUT), ("data/", HERE.parent / "data"), ("", HERE.parent / "web")]
 (OUT / "refs").mkdir(parents=True, exist_ok=True)
