@@ -12,10 +12,10 @@ tts-board 是一个给多角色对白配音的网页。在页面上按固定格�
 ## 试用
 
 ```bash
-python server/mock_server.py
+python3 server/mock_server.py
 ```
 
-然后打开 http://127.0.0.1:8765/ 。端口可以作为参数传入，例如 `python server/mock_server.py 9000`。模拟后端需要 Python 3.8 以上；页面需要 2022 年以后的 Chrome、Edge、Firefox 或 Safari。
+然后打开 http://127.0.0.1:8765/ 。端口可以作为参数传入，例如 `python3 server/mock_server.py 9000`。模拟后端只需要 Python 3.8 以上，无需模型或第三方 Python 包。Windows、Linux 和 macOS 都使用同一条命令；如果 Python 安装只提供 `python` 命令，用它替换 `python3`。页面需要 2022 年以后的 Chrome、Edge、Firefox 或 Safari。
 
 1. 在「场景」里点一个示例场景，剧本载入左边的编辑框
 2. 在「模型」里选一个模型，角色卡片随模型的能力变化
